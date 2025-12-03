@@ -42,11 +42,12 @@ class Game {
 
     loadImages() {
         const imageSources = {
-            santa: 'pngs/santa.png',
+            santa: 'pngs/santa-mc.png',
             reindeer: 'pngs/reindeer.png',
             redPillar: 'pngs/red_pillar.png',
             greenPillar: 'pngs/green_pillar.png',
-            gift: 'pngs/christmas_gift.png'
+            gift: 'pngs/christmas_gift.png',
+            background: 'pngs/background.jpg'
         };
 
         let loadedCount = 0;
@@ -74,20 +75,9 @@ class Game {
     }
 
     resizeCanvas() {
-        const maxWidth = 800;
-        const maxHeight = 600;
-        const aspectRatio = maxWidth / maxHeight;
-        
-        let width = Math.min(window.innerWidth * 0.9, maxWidth);
-        let height = width / aspectRatio;
-        
-        if (height > window.innerHeight * 0.85) {
-            height = window.innerHeight * 0.85;
-            width = height * aspectRatio;
-        }
-        
-        this.canvas.width = width;
-        this.canvas.height = height;
+        // Make canvas fullscreen
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
     }
 
     init() {
@@ -96,11 +86,20 @@ class Game {
         
         // Load high score
         this.highScore = this.api.getHighScore();
-        document.getElementById('highscore').textContent = this.highScore;
         
-        // Event listeners
-        document.getElementById('startBtn').addEventListener('click', () => this.startGame());
-        document.getElementById('restartBtn').addEventListener('click', () => this.startGame());
+        // Auto-start game after images load
+        const checkImagesAndStart = setInterval(() => {
+            if (this.imagesLoaded) {
+                clearInterval(checkImagesAndStart);
+                setTimeout(() => this.startGame(), 500);
+            }
+        }, 100);
+        
+        // Event listeners (minimal for compatibility)
+        const startBtn = document.getElementById('startBtn');
+        if (startBtn) startBtn.addEventListener('click', () => this.startGame());
+        const restartBtn = document.getElementById('restartBtn');
+        if (restartBtn) restartBtn.addEventListener('click', () => this.startGame());
         document.getElementById('leaderboardBtn').addEventListener('click', () => this.showLeaderboard());
         document.getElementById('closeLeaderboard').addEventListener('click', () => this.hideLeaderboard());
         document.getElementById('backFromLeaderboard').addEventListener('click', () => this.hideLeaderboard());
@@ -139,10 +138,6 @@ class Game {
     }
 
     startHolding() {
-        if (this.gameState === 'ready') {
-            // Start the game from ready state
-            this.gameState = 'playing';
-        }
         this.isHolding = true;
     }
 
@@ -160,8 +155,8 @@ class Game {
     }
 
     startGame() {
-        // Reset game state to ready (not playing yet)
-        this.gameState = 'ready';
+        // Start game immediately in playing mode
+        this.gameState = 'playing';
         this.score = 0;
         this.followers = [];
         this.isHolding = false;
@@ -171,19 +166,10 @@ class Game {
         this.player = new Player(100, this.canvas.height / 2);
         this.obstacleManager = new ObstacleManager(this.canvas);
         this.collectibleManager = new CollectibleManager(this.canvas);
-        
-        // Hide screens
-        this.startScreen.classList.add('hidden');
-        this.gameOverScreen.classList.remove('flex');
-        this.gameOverScreen.classList.add('hidden');
-        
-        // Update UI
-        this.updateScore();
     }
 
     updateScore() {
-        document.getElementById('score').textContent = this.score;
-        document.getElementById('followers').textContent = this.followers.length;
+        // Score is now drawn directly on canvas
     }
 
     gameOver() {
@@ -193,17 +179,13 @@ class Game {
         const isNewHigh = this.api.saveHighScore(this.score);
         if (isNewHigh) {
             this.highScore = this.score;
-            document.getElementById('highscore').textContent = this.highScore;
         }
         
         // Submit score to backend
         this.api.submitScore('Player', this.score, this.followers.length);
         
-        // Show game over screen
-        document.getElementById('finalScore').textContent = this.score;
-        document.getElementById('finalFollowers').textContent = this.followers.length;
-        this.gameOverScreen.classList.remove('hidden');
-        this.gameOverScreen.classList.add('flex');
+        // Auto-restart after 2 seconds
+        setTimeout(() => this.startGame(), 2000);
     }
 
     async showLeaderboard() {
@@ -254,9 +236,6 @@ class Game {
     }
 
     update() {
-        if (this.gameState !== 'playing' && this.gameState !== 'ready') return;
-        
-        // Only update game elements when actually playing
         if (this.gameState !== 'playing') return;
         
         // Update player boosting state
@@ -362,31 +341,32 @@ class Game {
     }
 
     drawBackground() {
-        // Sky gradient
-        const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
-        gradient.addColorStop(0, '#87CEEB');
-        gradient.addColorStop(0.5, '#E0F6FF');
-        gradient.addColorStop(0.5, '#90EE90');
-        gradient.addColorStop(1, '#7CB342');
+        const bgImg = this.images.background;
         
-        this.ctx.fillStyle = gradient;
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        
-        // Draw simple clouds
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-        for (let i = 0; i < 5; i++) {
-            const x = (this.bgOffset + i * 200) % this.canvas.width;
-            const y = 50 + (i * 30) % 100;
-            this.drawCloud(x, y);
+        if (bgImg && bgImg.complete && bgImg.naturalHeight !== 0) {
+            // Draw background with parallax scrolling
+            const bgWidth = this.canvas.width;
+            const bgHeight = this.canvas.height;
+            
+            // Draw two copies for seamless scrolling
+            this.ctx.drawImage(bgImg, this.bgOffset, 0, bgWidth, bgHeight);
+            this.ctx.drawImage(bgImg, this.bgOffset + bgWidth, 0, bgWidth, bgHeight);
+            
+            // Reset offset when it scrolls off screen
+            if (this.bgOffset <= -bgWidth) {
+                this.bgOffset = 0;
+            }
+        } else {
+            // Fallback gradient if image not loaded
+            const gradient = this.ctx.createLinearGradient(0, 0, 0, this.canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.5, '#E0F6FF');
+            gradient.addColorStop(0.5, '#90EE90');
+            gradient.addColorStop(1, '#7CB342');
+            
+            this.ctx.fillStyle = gradient;
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         }
-        
-        // Ground line
-        this.ctx.strokeStyle = '#5D4037';
-        this.ctx.lineWidth = 3;
-        this.ctx.beginPath();
-        this.ctx.moveTo(0, this.canvas.height * 0.5);
-        this.ctx.lineTo(this.canvas.width, this.canvas.height * 0.5);
-        this.ctx.stroke();
     }
 
     drawCloud(x, y) {
@@ -397,38 +377,48 @@ class Game {
         this.ctx.fill();
     }
 
-    drawReadyMessage() {
+    drawUI() {
+        // Draw score in top-left
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        this.ctx.font = 'bold 32px Arial';
+        this.ctx.textAlign = 'left';
+        this.ctx.textBaseline = 'top';
+        this.ctx.fillText(`Score: ${this.score}`, 20, 20);
+        
+        // Draw reindeer count
+        this.ctx.fillText(`🦌 ${this.followers.length}`, 20, 60);
+        
+        // Draw high score in top-right
+        this.ctx.textAlign = 'right';
+        this.ctx.fillText(`High: ${this.highScore}`, this.canvas.width - 20, 20);
+    }
+
+    drawGameOver() {
         // Semi-transparent overlay
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Ready message
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = 'bold 36px Arial';
+        // Game Over text
+        this.ctx.fillStyle = '#FF0000';
+        this.ctx.font = 'bold 72px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
         
-        this.ctx.fillText('GET READY!', centerX, centerY - 50);
+        this.ctx.fillText('GAME OVER', centerX, centerY - 50);
         
-        // Instruction text
-        this.ctx.font = 'bold 22px Arial';
+        // Final score
+        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.font = 'bold 36px Arial';
+        this.ctx.fillText(`Score: ${this.score}`, centerX, centerY + 20);
+        this.ctx.fillText(`Reindeers: ${this.followers.length}`, centerX, centerY + 60);
+        
+        // Restart message
+        this.ctx.font = 'bold 24px Arial';
         this.ctx.fillStyle = '#FFD700';
-        this.ctx.fillText('HOLD mouse or SPACE to fly', centerX, centerY + 10);
-        this.ctx.fillText('Release to fall', centerX, centerY + 40);
-        this.ctx.font = 'bold 18px Arial';
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.fillText('Press any key to start', centerX, centerY + 75);
-        
-        // Pulsing effect
-        const pulse = Math.sin(Date.now() / 300) * 0.3 + 0.7;
-        this.ctx.globalAlpha = pulse;
-        this.ctx.fillStyle = '#FFFFFF';
-        this.ctx.font = 'bold 48px Arial';
-        this.ctx.fillText('▼', centerX, centerY + 100);
-        this.ctx.globalAlpha = 1.0;
+        this.ctx.fillText('Restarting...', centerX, centerY + 110);
     }
 
     draw() {
@@ -438,7 +428,7 @@ class Game {
         // Draw background
         this.drawBackground();
         
-        if (this.gameState === 'playing' || this.gameState === 'ready') {
+        if (this.gameState === 'playing') {
             // Draw collectibles with images
             this.collectibleManager.draw(this.ctx, this.images.reindeer, this.images.gift);
             
@@ -455,10 +445,12 @@ class Game {
             this.player.draw(this.ctx, this.images.santa);
             this.ctx.globalAlpha = 1.0;
             
-            // Show ready message
-            if (this.gameState === 'ready') {
-                this.drawReadyMessage();
-            }
+            // Draw UI on canvas
+            this.drawUI();
+        }
+        
+        if (this.gameState === 'gameover') {
+            this.drawGameOver();
         }
     }
 

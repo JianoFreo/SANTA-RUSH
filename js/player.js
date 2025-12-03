@@ -86,13 +86,12 @@ class Follower {
     constructor(x, y, index) {
         this.x = x;
         this.y = y;
-        this.width = 35;
-        this.height = 35;
+        this.width = 40; // Match player size for better lineup
+        this.height = 40;
         this.index = index;
         this.targetX = x;
         this.targetY = y;
         this.color = this.getRandomColor();
-        this.offset = index * 50; // Distance behind leader
     }
 
     getRandomColor() {
@@ -143,9 +142,11 @@ class Follower {
     }
 
     update(leader) {
-        // Follow the leader with smooth movement
-        const smoothing = 0.15;
-        this.targetX = leader.x - this.offset;
+        // Follow the leader horizontally (Zombie Tsunami style)
+        const smoothing = 0.2;
+        // Line up behind leader horizontally
+        this.targetX = leader.x - (this.index + 1) * (this.width + 5);
+        // Match leader's Y position closely for horizontal lineup
         this.targetY = leader.y;
         
         this.x += (this.targetX - this.x) * smoothing;

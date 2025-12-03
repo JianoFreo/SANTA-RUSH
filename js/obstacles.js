@@ -22,10 +22,8 @@ class Obstacle {
         
         // Draw top obstacle
         if (useImage) {
-            // Draw image stretched to fill the space
-            const pattern = ctx.createPattern(pillarImg, 'repeat');
-            ctx.fillStyle = pattern;
-            ctx.fillRect(this.x, 0, this.width, this.gapY);
+            // Draw image stretched to fill the space (no pattern, static image)
+            ctx.drawImage(pillarImg, this.x, 0, this.width, this.gapY);
         } else {
             // Fallback
             ctx.fillStyle = this.color === 'red' ? '#DC143C' : '#228B22';
@@ -38,9 +36,8 @@ class Obstacle {
         
         // Draw bottom obstacle
         if (useImage) {
-            const pattern = ctx.createPattern(pillarImg, 'repeat');
-            ctx.fillStyle = pattern;
-            ctx.fillRect(this.x, this.gapY + this.gapSize, this.width, canvas.height - (this.gapY + this.gapSize));
+            // Draw image stretched to fill the space (no pattern, static image)
+            ctx.drawImage(pillarImg, this.x, this.gapY + this.gapSize, this.width, canvas.height - (this.gapY + this.gapSize));
         } else {
             // Fallback
             ctx.fillStyle = this.color === 'red' ? '#DC143C' : '#228B22';
