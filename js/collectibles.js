@@ -11,7 +11,7 @@ class Collectible {
         this.speed = 2.5; // Match obstacle speed
     }
 
-    draw(ctx) {
+    draw(ctx, reindeerImage) {
         if (this.collected) return;
 
         ctx.save();
@@ -20,40 +20,46 @@ class Collectible {
         this.pulseSize = Math.sin(Date.now() / 200) * 2;
         const size = this.radius + this.pulseSize;
         
-        // Outer glow
-        ctx.fillStyle = 'rgba(139, 69, 19, 0.3)';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, size + 8, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Reindeer silhouette
-        // Body (circle)
-        ctx.fillStyle = '#8B4513';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Head (smaller circle)
-        ctx.fillStyle = '#A0522D';
-        ctx.beginPath();
-        ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.6, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Antlers
-        ctx.strokeStyle = '#654321';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(this.x + size * 0.3, this.y - size * 0.7);
-        ctx.lineTo(this.x + size * 0.2, this.y - size * 1.2);
-        ctx.moveTo(this.x + size * 0.7, this.y - size * 0.7);
-        ctx.lineTo(this.x + size * 0.8, this.y - size * 1.2);
-        ctx.stroke();
-        
-        // Red nose
-        ctx.fillStyle = '#FF0000';
-        ctx.beginPath();
-        ctx.arc(this.x + size * 0.8, this.y - size * 0.2, size * 0.2, 0, Math.PI * 2);
-        ctx.fill();
+        // Try to draw reindeer image
+        if (reindeerImage && reindeerImage.complete && reindeerImage.naturalHeight !== 0) {
+            const imgSize = size * 2;
+            ctx.drawImage(reindeerImage, this.x - imgSize / 2, this.y - imgSize / 2, imgSize, imgSize);
+        } else {
+            // Fallback: Outer glow
+            ctx.fillStyle = 'rgba(139, 69, 19, 0.3)';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, size + 8, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Reindeer silhouette
+            // Body (circle)
+            ctx.fillStyle = '#8B4513';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Head (smaller circle)
+            ctx.fillStyle = '#A0522D';
+            ctx.beginPath();
+            ctx.arc(this.x + size * 0.5, this.y - size * 0.3, size * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Antlers
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(this.x + size * 0.3, this.y - size * 0.7);
+            ctx.lineTo(this.x + size * 0.2, this.y - size * 1.2);
+            ctx.moveTo(this.x + size * 0.7, this.y - size * 0.7);
+            ctx.lineTo(this.x + size * 0.8, this.y - size * 1.2);
+            ctx.stroke();
+            
+            // Red nose
+            ctx.fillStyle = '#FF0000';
+            ctx.beginPath();
+            ctx.arc(this.x + size * 0.8, this.y - size * 0.2, size * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+        }
         
         ctx.restore();
     }
@@ -129,7 +135,7 @@ class Gift {
         this.type = 'gift';
     }
 
-    draw(ctx) {
+    draw(ctx, giftImage) {
         if (this.collected) return;
 
         ctx.save();
@@ -139,27 +145,32 @@ class Gift {
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
         
-        // Outer glow
-        ctx.fillStyle = 'rgba(255, 215, 0, 0.4)';
-        ctx.fillRect(-this.width / 2 - 5, -this.height / 2 - 5, this.width + 10, this.height + 10);
-        
-        // Gift box
-        ctx.fillStyle = '#FF0000';
-        ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
-        
-        // Ribbon (horizontal)
-        ctx.fillStyle = '#FFD700';
-        ctx.fillRect(-this.width / 2, -3, this.width, 6);
-        
-        // Ribbon (vertical)
-        ctx.fillRect(-3, -this.height / 2, 6, this.height);
-        
-        // Bow
-        ctx.fillStyle = '#FFD700';
-        ctx.beginPath();
-        ctx.arc(-8, -this.height / 2, 5, 0, Math.PI * 2);
-        ctx.arc(8, -this.height / 2, 5, 0, Math.PI * 2);
-        ctx.fill();
+        // Try to draw gift image
+        if (giftImage && giftImage.complete && giftImage.naturalHeight !== 0) {
+            ctx.drawImage(giftImage, -this.width / 2, -this.height / 2, this.width, this.height);
+        } else {
+            // Fallback: Outer glow
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.4)';
+            ctx.fillRect(-this.width / 2 - 5, -this.height / 2 - 5, this.width + 10, this.height + 10);
+            
+            // Gift box
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
+            
+            // Ribbon (horizontal)
+            ctx.fillStyle = '#FFD700';
+            ctx.fillRect(-this.width / 2, -3, this.width, 6);
+            
+            // Ribbon (vertical)
+            ctx.fillRect(-3, -this.height / 2, 6, this.height);
+            
+            // Bow
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(-8, -this.height / 2, 5, 0, Math.PI * 2);
+            ctx.arc(8, -this.height / 2, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
         
         ctx.restore();
     }
@@ -275,7 +286,13 @@ class CollectibleManager {
         this.collectibles.push(new Gift(x, y));
     }
 
-    draw(ctx) {
-        this.collectibles.forEach(collectible => collectible.draw(ctx));
+    draw(ctx, reindeerImage, giftImage) {
+        this.collectibles.forEach(collectible => {
+            if (collectible.type === 'gift') {
+                collectible.draw(ctx, giftImage);
+            } else {
+                collectible.draw(ctx, reindeerImage);
+            }
+        });
     }
 }

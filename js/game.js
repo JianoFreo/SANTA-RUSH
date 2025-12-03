@@ -439,20 +439,20 @@ class Game {
         this.drawBackground();
         
         if (this.gameState === 'playing' || this.gameState === 'ready') {
-            // Draw collectibles
-            this.collectibleManager.draw(this.ctx);
+            // Draw collectibles with images
+            this.collectibleManager.draw(this.ctx, this.images.reindeer, this.images.gift);
             
-            // Draw obstacles
-            this.obstacleManager.draw(this.ctx);
+            // Draw obstacles with images
+            this.obstacleManager.draw(this.ctx, this.images.redPillar, this.images.greenPillar);
             
-            // Draw followers
-            this.followers.forEach(follower => follower.draw(this.ctx));
+            // Draw followers with reindeer image
+            this.followers.forEach(follower => follower.draw(this.ctx, this.images.reindeer));
             
             // Draw player with invincibility flash effect
             if (this.invincibilityTimer > 0 && Math.floor(Date.now() / 100) % 2 === 0) {
                 this.ctx.globalAlpha = 0.5; // Flash effect during invincibility
             }
-            this.player.draw(this.ctx);
+            this.player.draw(this.ctx, this.images.santa);
             this.ctx.globalAlpha = 1.0;
             
             // Show ready message

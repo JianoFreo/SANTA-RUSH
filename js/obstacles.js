@@ -13,25 +13,43 @@ class Obstacle {
         
         this.speed = 3;
         this.passed = false;
-        this.color = '#8B4513';
+        this.color = Math.random() > 0.5 ? 'red' : 'green'; // Randomly choose red or green
     }
 
-    draw(ctx, canvas) {
-        // Draw top obstacle
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, 0, this.width, this.gapY);
+    draw(ctx, canvas, redPillarImg, greenPillarImg) {
+        const pillarImg = this.color === 'red' ? redPillarImg : greenPillarImg;
+        const useImage = pillarImg && pillarImg.complete && pillarImg.naturalHeight !== 0;
         
-        // Top cap
-        ctx.fillStyle = '#654321';
-        ctx.fillRect(this.x - 5, this.gapY - 20, this.width + 10, 20);
+        // Draw top obstacle
+        if (useImage) {
+            // Draw image stretched to fill the space
+            const pattern = ctx.createPattern(pillarImg, 'repeat');
+            ctx.fillStyle = pattern;
+            ctx.fillRect(this.x, 0, this.width, this.gapY);
+        } else {
+            // Fallback
+            ctx.fillStyle = this.color === 'red' ? '#DC143C' : '#228B22';
+            ctx.fillRect(this.x, 0, this.width, this.gapY);
+            
+            // Top cap
+            ctx.fillStyle = this.color === 'red' ? '#8B0000' : '#006400';
+            ctx.fillRect(this.x - 5, this.gapY - 20, this.width + 10, 20);
+        }
         
         // Draw bottom obstacle
-        ctx.fillStyle = this.color;
-        ctx.fillRect(this.x, this.gapY + this.gapSize, this.width, canvas.height - (this.gapY + this.gapSize));
-        
-        // Bottom cap
-        ctx.fillStyle = '#654321';
-        ctx.fillRect(this.x - 5, this.gapY + this.gapSize, this.width + 10, 20);
+        if (useImage) {
+            const pattern = ctx.createPattern(pillarImg, 'repeat');
+            ctx.fillStyle = pattern;
+            ctx.fillRect(this.x, this.gapY + this.gapSize, this.width, canvas.height - (this.gapY + this.gapSize));
+        } else {
+            // Fallback
+            ctx.fillStyle = this.color === 'red' ? '#DC143C' : '#228B22';
+            ctx.fillRect(this.x, this.gapY + this.gapSize, this.width, canvas.height - (this.gapY + this.gapSize));
+            
+            // Bottom cap
+            ctx.fillStyle = this.color === 'red' ? '#8B0000' : '#006400';
+            ctx.fillRect(this.x - 5, this.gapY + this.gapSize, this.width + 10, 20);
+        }
     }
 
     update() {
@@ -98,8 +116,8 @@ class ObstacleManager {
         this.obstacles = this.obstacles.filter(obstacle => !obstacle.isOffScreen());
     }
 
-    draw(ctx) {
-        this.obstacles.forEach(obstacle => obstacle.draw(ctx, this.canvas));
+    draw(ctx, redPillarImg, greenPillarImg) {
+        this.obstacles.forEach(obstacle => obstacle.draw(ctx, this.canvas, redPillarImg, greenPillarImg));
     }
 
     checkCollisions(player) {

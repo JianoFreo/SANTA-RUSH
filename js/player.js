@@ -100,39 +100,44 @@ class Follower {
         return colors[Math.floor(Math.random() * colors.length)];
     }
 
-    draw(ctx) {
+    draw(ctx, reindeerImage) {
         ctx.save();
         
-        // Draw reindeer body
-        ctx.fillStyle = '#8B4513'; // Brown
-        ctx.fillRect(this.x, this.y, this.width, this.height * 0.7);
-        
-        // Head
-        ctx.fillStyle = '#A0522D';
-        ctx.beginPath();
-        ctx.arc(this.x + this.width / 2, this.y + this.height / 3, this.width / 2.5, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Antlers
-        ctx.strokeStyle = '#654321';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(this.x + 8, this.y + 5);
-        ctx.lineTo(this.x + 5, this.y - 5);
-        ctx.moveTo(this.x + this.width - 8, this.y + 5);
-        ctx.lineTo(this.x + this.width - 5, this.y - 5);
-        ctx.stroke();
-        
-        // Eyes
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(this.x + 10, this.y + 10, 3, 3);
-        ctx.fillRect(this.x + this.width - 13, this.y + 10, 3, 3);
-        
-        // Red nose
-        ctx.fillStyle = '#FF0000';
-        ctx.beginPath();
-        ctx.arc(this.x + this.width / 2, this.y + this.height / 3 + 5, 3, 0, Math.PI * 2);
-        ctx.fill();
+        // Try to draw reindeer image, fallback to drawn reindeer
+        if (reindeerImage && reindeerImage.complete && reindeerImage.naturalHeight !== 0) {
+            ctx.drawImage(reindeerImage, this.x, this.y, this.width, this.height);
+        } else {
+            // Fallback: Draw reindeer body
+            ctx.fillStyle = '#8B4513'; // Brown
+            ctx.fillRect(this.x, this.y, this.width, this.height * 0.7);
+            
+            // Head
+            ctx.fillStyle = '#A0522D';
+            ctx.beginPath();
+            ctx.arc(this.x + this.width / 2, this.y + this.height / 3, this.width / 2.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Antlers
+            ctx.strokeStyle = '#654321';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(this.x + 8, this.y + 5);
+            ctx.lineTo(this.x + 5, this.y - 5);
+            ctx.moveTo(this.x + this.width - 8, this.y + 5);
+            ctx.lineTo(this.x + this.width - 5, this.y - 5);
+            ctx.stroke();
+            
+            // Eyes
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(this.x + 10, this.y + 10, 3, 3);
+            ctx.fillRect(this.x + this.width - 13, this.y + 10, 3, 3);
+            
+            // Red nose
+            ctx.fillStyle = '#FF0000';
+            ctx.beginPath();
+            ctx.arc(this.x + this.width / 2, this.y + this.height / 3 + 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
         
         ctx.restore();
     }
