@@ -30,7 +30,7 @@ class Game {
         
         // Background with parallax
         this.bgOffset = 0;
-        this.bgSpeed = 1; // Slower than game speed for parallax effect
+        this.bgSpeed = 2.5; // Slower than game speed for parallax effect
         
         // Load images
         this.images = {};
@@ -312,9 +312,6 @@ class Game {
         
         // Update background scroll with parallax (slower than game speed)
         this.bgOffset -= this.bgSpeed;
-        if (this.bgOffset <= -50) {
-            this.bgOffset = 0;
-        }
     }
 
     showBonusText(text) {
@@ -344,16 +341,30 @@ class Game {
         const bgImg = this.images.background;
         
         if (bgImg && bgImg.complete && bgImg.naturalHeight !== 0) {
-            // Draw background with parallax scrolling
-            const bgWidth = this.canvas.width;
-            const bgHeight = this.canvas.height;
+            // Calculate scale to cover canvas while maintaining aspect ratio
+            const imgAspect = bgImg.naturalWidth / bgImg.naturalHeight;
+            const canvasAspect = this.canvas.width / this.canvas.height;
+            
+            let drawWidth, drawHeight, offsetY;
+            
+            if (canvasAspect > imgAspect) {
+                // Canvas is wider than image, fit to width
+                drawWidth = this.canvas.width;
+                drawHeight = drawWidth / imgAspect;
+                offsetY = (this.canvas.height - drawHeight) / 2;
+            } else {
+                // Canvas is taller than image, fit to height
+                drawHeight = this.canvas.height;
+                drawWidth = drawHeight * imgAspect;
+                offsetY = 0;
+            }
             
             // Draw two copies for seamless scrolling
-            this.ctx.drawImage(bgImg, this.bgOffset, 0, bgWidth, bgHeight);
-            this.ctx.drawImage(bgImg, this.bgOffset + bgWidth, 0, bgWidth, bgHeight);
+            this.ctx.drawImage(bgImg, this.bgOffset, offsetY, drawWidth, drawHeight);
+            this.ctx.drawImage(bgImg, this.bgOffset + drawWidth, offsetY, drawWidth, drawHeight);
             
             // Reset offset when it scrolls off screen
-            if (this.bgOffset <= -bgWidth) {
+            if (this.bgOffset <= -drawWidth) {
                 this.bgOffset = 0;
             }
         } else {
@@ -435,15 +446,15 @@ class Game {
             // Draw obstacles with images
             this.obstacleManager.draw(this.ctx, this.images.redPillar, this.images.greenPillar);
             
-            // Draw followers with reindeer image
-            this.followers.forEach(follower => follower.draw(this.ctx, this.images.reindeer));
-            
             // Draw player with invincibility flash effect
             if (this.invincibilityTimer > 0 && Math.floor(Date.now() / 100) % 2 === 0) {
                 this.ctx.globalAlpha = 0.5; // Flash effect during invincibility
             }
             this.player.draw(this.ctx, this.images.santa);
             this.ctx.globalAlpha = 1.0;
+            
+            // Draw followers with reindeer image (in front of Santa)
+            this.followers.forEach(follower => follower.draw(this.ctx, this.images.reindeer));
             
             // Draw UI on canvas
             this.drawUI();

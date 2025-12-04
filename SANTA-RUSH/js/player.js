@@ -4,8 +4,8 @@ class Player {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.width = 40;
-        this.height = 40;
+        this.width = 80;
+        this.height = 80;
         this.velocityY = 0;
         this.rotation = 0;
         this.color = '#FF0000';
@@ -86,8 +86,8 @@ class Follower {
     constructor(x, y, index) {
         this.x = x;
         this.y = y;
-        this.width = 40; // Match player size for better lineup
-        this.height = 40;
+        this.width = 80; // Match player size for better lineup
+        this.height = 80;
         this.index = index;
         this.targetX = x;
         this.targetY = y;

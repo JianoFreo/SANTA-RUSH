@@ -3,7 +3,7 @@
 class Obstacle {
     constructor(x, canvas, gapSize = 180) {
         this.x = x;
-        this.width = 60;
+        this.width = 100;
         this.gapSize = gapSize;
         
         // Random gap position
