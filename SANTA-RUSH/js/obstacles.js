@@ -58,10 +58,16 @@ class Obstacle {
     }
 
     checkCollision(player) {
+        // Use hitbox for collision detection (smaller than visual size)
+        const hitboxX = player.x + (player.hitboxOffsetX || 0);
+        const hitboxY = player.y + (player.hitboxOffsetY || 0);
+        const hitboxWidth = player.hitboxWidth || player.width;
+        const hitboxHeight = player.hitboxHeight || player.height;
+        
         // Check if player is in the x range of the obstacle
-        if (player.x + player.width > this.x && player.x < this.x + this.width) {
+        if (hitboxX + hitboxWidth > this.x && hitboxX < this.x + this.width) {
             // Check if player is NOT in the gap
-            if (player.y < this.gapY || player.y + player.height > this.gapY + this.gapSize) {
+            if (hitboxY < this.gapY || hitboxY + hitboxHeight > this.gapY + this.gapSize) {
                 return true;
             }
         }

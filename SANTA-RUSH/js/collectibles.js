@@ -102,10 +102,15 @@ class Collectible {
     checkCollection(player, physics) {
         if (this.collected) return false;
 
+        const hitboxWidth = player.hitboxWidth || player.width;
+        const hitboxHeight = player.hitboxHeight || player.height;
+        const hitboxOffsetX = player.hitboxOffsetX || 0;
+        const hitboxOffsetY = player.hitboxOffsetY || 0;
+
         const playerCenter = {
-            x: player.x + player.width / 2,
-            y: player.y + player.height / 2,
-            radius: Math.max(player.width, player.height) / 2
+            x: player.x + hitboxOffsetX + hitboxWidth / 2,
+            y: player.y + hitboxOffsetY + hitboxHeight / 2,
+            radius: Math.max(hitboxWidth, hitboxHeight) / 2
         };
 
         const collectibleCircle = {
@@ -193,11 +198,16 @@ class Gift {
             height: this.height
         };
 
+        const hitboxWidth = player.hitboxWidth || player.width;
+        const hitboxHeight = player.hitboxHeight || player.height;
+        const hitboxOffsetX = player.hitboxOffsetX || 0;
+        const hitboxOffsetY = player.hitboxOffsetY || 0;
+
         const playerRect = {
-            x: player.x,
-            y: player.y,
-            width: player.width,
-            height: player.height
+            x: player.x + hitboxOffsetX,
+            y: player.y + hitboxOffsetY,
+            width: hitboxWidth,
+            height: hitboxHeight
         };
 
         if (physics.checkCollision(giftRect, playerRect)) {

@@ -138,6 +138,11 @@ class Game {
     }
 
     startHolding() {
+        // If game over, restart instead of holding
+        if (this.gameState === 'gameover') {
+            this.startGame();
+            return;
+        }
         this.isHolding = true;
     }
 
@@ -183,9 +188,6 @@ class Game {
         
         // Submit score to backend
         this.api.submitScore('Player', this.score, this.followers.length);
-        
-        // Auto-restart after 2 seconds
-        setTimeout(() => this.startGame(), 2000);
     }
 
     async showLeaderboard() {
@@ -429,7 +431,7 @@ class Game {
         // Restart message
         this.ctx.font = 'bold 24px Arial';
         this.ctx.fillStyle = '#FFD700';
-        this.ctx.fillText('Restarting...', centerX, centerY + 110);
+        this.ctx.fillText('Click or Press Space to Restart', centerX, centerY + 110);
     }
 
     draw() {

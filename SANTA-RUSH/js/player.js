@@ -6,6 +6,11 @@ class Player {
         this.y = y;
         this.width = 80;
         this.height = 80;
+        // Hitbox is smaller than visual size for better gameplay
+        this.hitboxWidth = 50;
+        this.hitboxHeight = 50;
+        this.hitboxOffsetX = 15;
+        this.hitboxOffsetY = 15;
         this.velocityY = 0;
         this.rotation = 0;
         this.color = '#FF0000';
@@ -88,6 +93,11 @@ class Follower {
         this.y = y;
         this.width = 80; // Match player size for better lineup
         this.height = 80;
+        // Hitbox is smaller than visual size for better gameplay
+        this.hitboxWidth = 50;
+        this.hitboxHeight = 50;
+        this.hitboxOffsetX = 15;
+        this.hitboxOffsetY = 15;
         this.index = index;
         this.targetX = x;
         this.targetY = y;
@@ -144,8 +154,8 @@ class Follower {
     update(leader) {
         // Follow the leader horizontally (Zombie Tsunami style)
         const smoothing = 0.2;
-        // Line up behind leader horizontally
-        this.targetX = leader.x - (this.index + 1) * (this.width + 5);
+        // Line up IN FRONT of leader horizontally
+        this.targetX = leader.x + (this.index + 1) * (this.width + 5);
         // Match leader's Y position closely for horizontal lineup
         this.targetY = leader.y;
         
