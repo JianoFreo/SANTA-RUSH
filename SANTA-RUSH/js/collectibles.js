@@ -19,19 +19,23 @@ class Collectible {
         // Pulse effect
         this.pulseSize = Math.sin(Date.now() / 200) * 2;
         const size = this.radius + this.pulseSize;
-        
+        // Glow behind the collectible (pulsing)
+        const glowRadius = size + 12;
+        const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, glowRadius);
+        g.addColorStop(0, 'rgba(255,215,0,0.9)');
+        g.addColorStop(0.35, 'rgba(255,215,0,0.4)');
+        g.addColorStop(1, 'rgba(255,215,0,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, glowRadius, 0, Math.PI * 2);
+        ctx.fill();
+
         // Try to draw reindeer image
         if (reindeerImage && reindeerImage.complete && reindeerImage.naturalHeight !== 0) {
-            const imgSize = size * 2;
+            const imgSize = size * 2 + 6; // a bit larger so glow peeks
             ctx.drawImage(reindeerImage, this.x - imgSize / 2, this.y - imgSize / 2, imgSize, imgSize);
         } else {
-            // Fallback: Outer glow
-            ctx.fillStyle = 'rgba(139, 69, 19, 0.3)';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, size + 8, 0, Math.PI * 2);
-            ctx.fill();
-            
-            // Reindeer silhouette
+            // Fallback: darker silhouette on top of glow
             // Body (circle)
             ctx.fillStyle = '#8B4513';
             ctx.beginPath();
@@ -151,14 +155,21 @@ class Gift {
         ctx.rotate(this.rotation);
         
         // Try to draw gift image
+        // Glow behind the gift
+        const glowRadius = Math.max(this.width, this.height) * 0.8 + 8;
+        const gg = ctx.createRadialGradient(0, 0, 0, 0, 0, glowRadius);
+        gg.addColorStop(0, 'rgba(255,240,200,0.9)');
+        gg.addColorStop(0.4, 'rgba(255,240,200,0.35)');
+        gg.addColorStop(1, 'rgba(255,240,200,0)');
+        ctx.fillStyle = gg;
+        ctx.beginPath();
+        ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
+        ctx.fill();
+
         if (giftImage && giftImage.complete && giftImage.naturalHeight !== 0) {
             ctx.drawImage(giftImage, -this.width / 2, -this.height / 2, this.width, this.height);
         } else {
-            // Fallback: Outer glow
-            ctx.fillStyle = 'rgba(255, 215, 0, 0.4)';
-            ctx.fillRect(-this.width / 2 - 5, -this.height / 2 - 5, this.width + 10, this.height + 10);
-            
-            // Gift box
+            // Fallback: Gift box on top of glow
             ctx.fillStyle = '#FF0000';
             ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
             
@@ -170,10 +181,10 @@ class Gift {
             ctx.fillRect(-3, -this.height / 2, 6, this.height);
             
             // Bow
-            ctx.fillStyle = '#FFD700';
             ctx.beginPath();
             ctx.arc(-8, -this.height / 2, 5, 0, Math.PI * 2);
             ctx.arc(8, -this.height / 2, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#FFD700';
             ctx.fill();
         }
         
@@ -272,10 +283,17 @@ class CollectibleManager {
                         player.y,
                         followers.length
                     );
-                    // Place new follower in front of the leader right away so they line up tightly
+                    // Place new follower anchored to the last follower (or player) so spacing is constant
                     const gap = 48; // overlap amount in pixels (match player.js)
-                    newFollower.x = player.x + (newFollower.index + 1) * (newFollower.width - gap);
-                    newFollower.y = player.y;
+                    if (followers.length > 0) {
+                        const prev = followers[followers.length - 1];
+                        newFollower.x = prev.x + prev.width - gap;
+                        newFollower.y = prev.y;
+                    } else {
+                        // First follower anchors to player
+                        newFollower.x = player.x + player.width - gap;
+                        newFollower.y = player.y;
+                    }
                     followers.push(newFollower);
                 }
             }

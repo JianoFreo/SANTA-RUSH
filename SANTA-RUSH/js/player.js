@@ -154,9 +154,10 @@ class Follower {
     update(leader) {
         // Follow the leader horizontally (Zombie Tsunami style)
         const smoothing = 0.2;
-        // Line up IN FRONT of leader horizontally with overlap so they appear very close
+        // Line up IN FRONT of immediate leader horizontally with overlap so spacing is constant
         const gap = 48; // overlap amount in pixels (higher = more overlap)
-        this.targetX = leader.x + (this.index + 1) * (this.width - gap);
+        // Anchor to the immediate leader's right edge so each follower stays a constant distance from the one before it
+        this.targetX = leader.x + leader.width - gap;
         // Match leader's Y position closely for horizontal lineup
         this.targetY = leader.y;
         
