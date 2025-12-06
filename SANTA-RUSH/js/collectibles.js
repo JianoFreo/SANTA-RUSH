@@ -268,10 +268,14 @@ class CollectibleManager {
                 } else {
                     // Add a new reindeer follower
                     const newFollower = new Follower(
-                        player.x - followers.length * 50,
+                        player.x,
                         player.y,
                         followers.length
                     );
+                    // Place new follower in front of the leader right away so they line up tightly
+                    const gap = 0; // zero gap so followers appear touching
+                    newFollower.x = player.x + (newFollower.index + 1) * (newFollower.width - gap);
+                    newFollower.y = player.y;
                     followers.push(newFollower);
                 }
             }

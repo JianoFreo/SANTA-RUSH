@@ -154,8 +154,9 @@ class Follower {
     update(leader) {
         // Follow the leader horizontally (Zombie Tsunami style)
         const smoothing = 0.2;
-        // Line up IN FRONT of leader horizontally
-        this.targetX = leader.x + (this.index + 1) * (this.width + 5);
+        // Line up IN FRONT of leader horizontally with minimal gap so they look touching
+        const gap = 0; // zero gap for almost-touching followers
+        this.targetX = leader.x + (this.index + 1) * (this.width - gap);
         // Match leader's Y position closely for horizontal lineup
         this.targetY = leader.y;
         

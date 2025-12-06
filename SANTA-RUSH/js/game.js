@@ -269,8 +269,8 @@ class Game {
         if (this.invincibilityTimer === 0 && this.obstacleManager.checkCollisions(this.player)) {
             // Lose followers on collision
             if (this.followers.length > 0) {
-                // Remove last 2 followers (or all if less than 2)
-                const loseCount = Math.min(2, this.followers.length);
+                // Lose a single follower per collision (1 deer = 1 extra life)
+                const loseCount = 1;
                 this.followers.splice(this.followers.length - loseCount, loseCount);
                 this.updateScore();
                 
