@@ -23,7 +23,12 @@ class Obstacle {
         // Draw top obstacle
         if (useImage) {
             // Draw image stretched to fill the space and flipped vertically so the top pillar is upside down
-            ctx.drawImage(pillarImg, this.x, this.gapY, this.width, -this.gapY);
+            ctx.save();
+            // Move origin to the top of the gap, flip vertically, draw image with positive height
+            ctx.translate(this.x, this.gapY);
+            ctx.scale(1, -1);
+            ctx.drawImage(pillarImg, 0, 0, this.width, this.gapY);
+            ctx.restore();
         } else {
             // Fallback
             ctx.fillStyle = this.color === 'red' ? '#DC143C' : '#228B22';

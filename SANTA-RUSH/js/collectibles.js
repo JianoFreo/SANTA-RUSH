@@ -273,7 +273,7 @@ class CollectibleManager {
                         followers.length
                     );
                     // Place new follower in front of the leader right away so they line up tightly
-                    const gap = 0; // zero gap so followers appear touching
+                    const gap = 48; // overlap amount in pixels (match player.js)
                     newFollower.x = player.x + (newFollower.index + 1) * (newFollower.width - gap);
                     newFollower.y = player.y;
                     followers.push(newFollower);
