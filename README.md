@@ -1,3 +1,5 @@
+https://jianofreo.github.io/SANTA-RUSH/
+
 # Santa Rush 
 
 A fun endless runner game combining Flappy Bird mechanics with Zombie Tsunami-style collecting! Navigate through obstacles, collect followers, and build your horde while trying to achieve the highest score.
